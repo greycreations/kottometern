@@ -1,0 +1,6 @@
+# Använd tillsammans med standardfilen för att bygga lokala ändringar:
+# docker compose -f docker-compose.yml -f docker-compose.local.yml up --build -d
+services:
+  app:
+    build:
+      context: .
