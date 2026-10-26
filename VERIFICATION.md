@@ -2,7 +2,16 @@
 
 ## Komplettering för GitHub
 
-Standardfilen `docker-compose.yml` bygger nu från `greycreations/kottometern`, grenen `main`, med standardvärden för miljövariabler. `docker-compose.local.yml` kan läggas ovanpå för lokala byggen. Båda konfigurationerna valideras med `docker compose config --quiet`. Ingen applikationskod ändrades i denna komplettering. Containerbygge och start är fortsatt inte verifierade när Docker-motorn saknas.
+Standardfilen `docker-compose.yml` bygger nu från `greycreations/kottometern`, grenen `main`, med standardvärden för miljövariabler. `docker-compose.local.yml` kan läggas ovanpå för lokala byggen. Båda konfigurationerna validerades med `docker compose config --quiet`. Ingen applikationskod ändrades i denna komplettering.
+
+Docker-motorn blev tillgänglig och följande kontroller genomfördes med Docker 29.7.2:
+
+- `docker compose -p kottometern up --build -d`: godkänt. Byggkontext hämtades direkt från GitHub, commit `681a74d3aa166a365c3147ed4db3fba874c14707`.
+- `docker compose -p kottometern up -d --wait --wait-timeout 60`: godkänt, containern rapporterar healthy.
+- Containern kör som `uid=1001(app)`, utan root.
+- Startsidan svarar HTTP 200 och `/api/health` ger `{"status":"ok"}` genom publicerad port 3000.
+
+## Applikationskontroller
 
 - `npm install`: genomförd, lockfil skapad och direkta beroenden versionslåsta. Installationen rapporterade inga kända sårbarheter.
 - `npm run lint`: godkänd utan varningar.
@@ -15,7 +24,5 @@ Standardfilen `docker-compose.yml` bygger nu från `greycreations/kottometern`, 
 - Riktiga lokala HTTP-anrop till `/api/health`, `/api/locations?q=Göteborg` och `/api/weather?lat=57.7&lon=12`: godkända. Väderanropet gav validerad hourly-data, svensk motivering och Europe/Stockholm. Leverantörens dokumentation för parametrar, enheter, tidssemantik och villkor lästes vid implementationen.
 
 ## Kvarvarande verifieringsluckor
-
-Docker-klient 29.7.2 finns, men Docker-motorn är inte tillgänglig (`dockerDesktopLinuxEngine` saknas). Containerbygge, Compose-start och hälsokontroll inuti containern är därför **inte verifierade**. Starta Docker Desktop/Linux-motorn och kör README-kommandona för att slutföra den kontrollen.
 
 Ingen fysisk mobil eller separat hjälpmedelsläsare har använts. Positioneringens lyckade hårdvaruflöde är inte verifierat. Browserförlopp och fel mockas i de automatiska testerna; riktiga leverantörsanrop är separata rökprov och ingår inte i deterministiska tester.
